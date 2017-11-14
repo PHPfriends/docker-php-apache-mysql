@@ -1,0 +1,52 @@
+version: '2'
+
+networks:
+  local_dev:
+
+services:
+
+    mysql:
+        build: mysql
+        volumes:
+          - ./.data/db:/var/lib/mysql
+        environment:
+          MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+          MYSQL_DATABASE: ${MYSQL_DATABASE}
+          MYSQL_USER: ${MYSQL_USER}
+          MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        ports:
+          - 3306
+        container_name: mysql
+        networks:
+          - local_dev
+        restart: always
+
+    php:
+        build:
+          context: php
+          args:
+            TIMEZONE: ${TIMEZONE}
+        volumes:
+          - ${PHP_APP_PATH}:/var/www/html
+          - ./logs:/var/logs
+        container_name: php
+        networks:
+          - local_dev
+        depends_on:
+          - mysql
+
+    apache:
+        build: apache
+        ports:
+          - 8800:80
+        volumes_from:
+          - php
+        container_name: web
+        volumes:
+          - ./logs/apache:/var/log/apache
+        networks:
+          - local_dev
+        depends_on:
+          - php
+        hostname: web
+
