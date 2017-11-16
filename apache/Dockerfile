@@ -1,6 +1,6 @@
 FROM webdevops/base:alpine
 
-ENV WEB_DOCUMENT_ROOT=/app \
+ENV WEB_DOCUMENT_ROOT=/var/www/html \
     WEB_DOCUMENT_INDEX=index.php \
     WEB_ALIAS_DOMAIN=*.vm \
     WEB_PHP_TIMEOUT=600 \
@@ -9,7 +9,6 @@ ENV WEB_DOCUMENT_ROOT=/app \
 COPY conf/ /opt/docker/
 
 RUN set -x \
-    # Install apache
     && apk-install \
         apache2 \
         apache2-utils \
@@ -20,6 +19,7 @@ RUN set -x \
 		s!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g; \
 		' /etc/apache2/httpd.conf \
     && docker-run-bootstrap \
-    && docker-image-cleanup
+    && docker-image-cleanup \
+    && echo 'alias ll="ls -la"' >> ~/.bashrc
 
 EXPOSE 80 443
