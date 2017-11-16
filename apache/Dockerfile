@@ -1,25 +1,18 @@
-FROM webdevops/base:alpine
+FROM httpd:2.2
 
-ENV WEB_DOCUMENT_ROOT=/var/www/html \
-    WEB_DOCUMENT_INDEX=index.php \
-    WEB_ALIAS_DOMAIN=*.vm \
-    WEB_PHP_TIMEOUT=600 \
-    WEB_PHP_SOCKET=""
+ENV WEB_DOCUMENT_ROOT=/var/www/html
 
-COPY conf/ /opt/docker/
+ADD conf/vhost.conf /usr/local/apache2/conf/extra/
 
 RUN set -x \
-    && apk-install \
-        apache2 \
-        apache2-utils \
-        apache2-proxy \
-        apache2-ssl \
-	&& sed -ri ' \
-		s!^(\s*CustomLog)\s+\S+!\1 /proc/self/fd/1!g; \
-		s!^(\s*ErrorLog)\s+\S+!\1 /proc/self/fd/2!g; \
-		' /etc/apache2/httpd.conf \
-    && docker-run-bootstrap \
-    && docker-image-cleanup \
-    && echo 'alias ll="ls -la"' >> ~/.bashrc
+    && apt-get update \
+    && apt-get install -y nano \
+    && echo "\nServerName localhost\n" >> /usr/local/apache2/conf/httpd.conf \
+    && echo "\nInclude conf/extra/vhost.conf\n" >> /usr/local/apache2/conf/httpd.conf \
+    && echo 'alias ll="ls -la"' >> ~/.bashrc \
+    && mkdir -p /var/www/html \
+    && chown -R www-data:nogroup /var/www/html
 
 EXPOSE 80 443
+
+WORKDIR ${WEB_DOCUMENT_ROOT}

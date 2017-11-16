@@ -39,10 +39,10 @@ services:
         build: apache
         ports:
           - 8800:80
-        volumes_from:
-          - php
-        container_name: web
+        container_name: apache
         volumes:
+          # - ${PHP_APP_PATH}:/usr/local/apache2/htdocs
+          - ${PHP_APP_PATH}:/var/www/html
           - ./logs/apache:/var/log/apache
         networks:
           - local_dev
