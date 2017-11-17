@@ -15,7 +15,7 @@ services:
           MYSQL_USER: ${MYSQL_USER}
           MYSQL_PASSWORD: ${MYSQL_PASSWORD}
         ports:
-          - 3306
+          - 33306:3306
         container_name: mysql
         networks:
           - local_dev
